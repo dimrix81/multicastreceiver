@@ -4,14 +4,10 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-#include <QDialog>
 #include <QHostAddress>
 #include <QUdpSocket>
 #include <QVector>
-
-QT_BEGIN_NAMESPACE
-class QLabel;
-QT_END_NAMESPACE
+#include <QObject>
 
 struct client_udp_s
 {
@@ -27,23 +23,19 @@ struct client_udp_s
 typedef QVector<client_udp_s> client_udp_t;
 typedef QVector<client_udp_s>::iterator client_udp_p;
 
-class Receiver : public QDialog
+class Receiver : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Receiver(const uint32_t version_protocol, const uint32_t size_array, const uint32_t max_size_packet, QWidget *parent = nullptr);
+    explicit Receiver(const uint32_t version_protocol, const uint32_t size_array, const uint32_t max_size_packet, QObject *parent = nullptr);
     void sendDatagram(const QHostAddress &sender, quint16 senderPort, const QByteArray &answer);
 
 private slots:
     void processPendingDatagrams();
 
-    // void sendMessage(QString message);
-
 private:
-    QLabel *statusLabel = nullptr;
     QUdpSocket udpSocket4;
-    QHostAddress groupAddress4;
     const uint32_t version_protocol;
     const uint32_t size_array;
     const uint32_t max_size_packet;

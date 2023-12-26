@@ -1,4 +1,8 @@
-QT += network widgets
+QT = core
+
+CONFIG += c++17 cmdline
+
+QT += network
 requires(qtConfig(udpsocket))
 
 HEADERS       = receiver.h
