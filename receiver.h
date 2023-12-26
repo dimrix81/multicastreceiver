@@ -4,15 +4,10 @@
 #ifndef RECEIVER_H
 #define RECEIVER_H
 
-// #include <QDialog>
 #include <QHostAddress>
 #include <QUdpSocket>
 #include <QVector>
 #include <QObject>
-
-QT_BEGIN_NAMESPACE
-// class QLabel;
-QT_END_NAMESPACE
 
 struct client_udp_s
 {
@@ -39,12 +34,8 @@ public:
 private slots:
     void processPendingDatagrams();
 
-    // void sendMessage(QString message);
-
 private:
-    // QLabel *statusLabel = nullptr;
     QUdpSocket udpSocket4;
-    QHostAddress groupAddress4;
     const uint32_t version_protocol;
     const uint32_t size_array;
     const uint32_t max_size_packet;
