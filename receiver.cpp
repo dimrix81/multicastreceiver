@@ -1,7 +1,7 @@
 // Copyright (C) 2017 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
-#include <QtWidgets>
+// #include <QtWidgets>
 #include <QtNetwork>
 
 #include "receiver.h"
@@ -48,39 +48,36 @@ static const quint8 c_data_resend = 0x03;
 static const quint8 c_end_data = 0x0F;
 static const quint8 c_error = 0xFF;
 
-Receiver::Receiver(const uint32_t version_protocol_, const uint32_t size_array_, const uint32_t max_size_packet_, QWidget *parent)
-    : QDialog(parent),
+Receiver::Receiver(const uint32_t version_protocol_, const uint32_t size_array_, const uint32_t max_size_packet_, QObject *parent)
+    : QObject(parent),
       groupAddress4(QStringLiteral("239.255.43.21")),
       // groupAddress6(QStringLiteral("ff12::2115"))
     version_protocol(version_protocol_),
     size_array(size_array_),
     max_size_packet(max_size_packet_)
 {
-    statusLabel = new QLabel(("Version protocol: " + QString::number(version_protocol)) + " size: " + QString::number(size_array));
-    auto quitButton = new QPushButton(tr("&Quit"));
+    // statusLabel = new QLabel(("Version protocol: " + QString::number(version_protocol)) + " size: " + QString::number(size_array));
+    // auto quitButton = new QPushButton(tr("&Quit"));
 
-    auto buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
-    buttonLayout->addWidget(quitButton);
-    buttonLayout->addStretch(1);
+    // auto buttonLayout = new QHBoxLayout;
+    // buttonLayout->addStretch(1);
+    // buttonLayout->addWidget(quitButton);
+    // buttonLayout->addStretch(1);
 
-    auto mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(statusLabel);
-    mainLayout->addLayout(buttonLayout);
-    setLayout(mainLayout);
+    // auto mainLayout = new QVBoxLayout;
+    // mainLayout->addWidget(statusLabel);
+    // mainLayout->addLayout(buttonLayout);
+    // setLayout(mainLayout);
 
-    setWindowTitle(tr("Multicast Receiver"));
+    // setWindowTitle(tr("Multicast Receiver"));
 
     udpSocket4.bind(QHostAddress::AnyIPv4, 45454, QUdpSocket::ShareAddress);
     udpSocket4.joinMulticastGroup(groupAddress4);
 
     connect(&udpSocket4, &QUdpSocket::readyRead,
             this, &Receiver::processPendingDatagrams);
-    connect(quitButton, &QPushButton::clicked,
-            qApp, &QCoreApplication::quit);
-    // sender.setAddress("192.168.0.122");
-    // senderPort = 0;
-    // sendDatagram();
+    // connect(quitButton, &QPushButton::clicked,
+    //         qApp, &QCoreApplication::quit);
 }
 
 quint16 Crc16(unsigned char *array, size_t len)  // CRC-CCITT
@@ -101,13 +98,6 @@ bool checkmeesage(QByteArray *datagram)
     return (crc_calc == *crc_control);
 }
 
-// bool find_client(client_udp_p client_udp, const QHostAddress *sender, quint16 *senderPort)
-// {
-//     const auto lambda_find_client = []( const client_udp_s& cl1, const client_udp_s& cl2 ){ return ((cl1.sender == cl2.sender) && (cl1.senderPort == cl2.senderPort)); };
-//     client_udp = std::find_if( std::begin(clients_udp), std::end(clients_udp), lambda_find_client );
-//     return client_udp == clients_udp.end();
-// }
-
 void Receiver::processPendingDatagrams()
 {
     if(udpSocket4.hasPendingDatagrams())
@@ -116,14 +106,11 @@ void Receiver::processPendingDatagrams()
         QByteArray datagram;
         quint16 senderPort;
         QHostAddress sender;
-        // const auto find_it = std::find(clients_udp.begin(), clients_udp.end(),
         datagram.resize(udpSocket4.pendingDatagramSize());
         udpSocket4.readDatagram(datagram.data(),datagram.size(), &sender, &senderPort);
         const auto lambda_find_client = [&sender, &senderPort]( const client_udp_s& cl){//qDebug()<<"find"<<cl.senderPort<<" ? "<<senderPort;
                     return ((cl.sender == sender) && (cl.senderPort == senderPort)); };
         client_udp_p client_udp = std::find_if( std::begin(clients_udp), std::end(clients_udp), lambda_find_client );// = find_if(clients_udp.begin(), clients_udp.end(), [] (const client_udp_s& cl) { return cl.sender == 0; } );
-        // if (1)
-        // {
         qDebug()<<"Receiver HEX: "<<datagram.toHex()<<" size: " << datagram.size();
         if (datagram.size())
         {
